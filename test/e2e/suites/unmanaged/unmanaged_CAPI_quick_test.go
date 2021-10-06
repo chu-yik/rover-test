@@ -26,10 +26,10 @@ import (
 	. "github.com/onsi/gomega"
 
 	corev1 "k8s.io/api/core/v1"
-	"sigs.k8s.io/cluster-api-provider-aws/test/e2e/shared"
+	"sigs.k8s.io/rover-test/test/e2e/shared"
 )
 
-var _ = ginkgo.Context("[Rover test]", func() {
+var _ = ginkgo.Context("[Rover dummy test]", func() {
 	var (
 		namespace *corev1.Namespace
 		ctx       context.Context

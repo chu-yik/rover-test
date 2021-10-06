@@ -1,3 +1,4 @@
+//go:build e2e
 // +build e2e
 
 /*
@@ -59,7 +60,7 @@ func Node1BeforeSuite(e2eCtx *E2EContext) []byte {
 	flag.Parse()
 	Expect(e2eCtx.Settings.ConfigPath).To(BeAnExistingFile(), "Invalid test suite argument. configPath should be an existing file.")
 	Expect(os.MkdirAll(e2eCtx.Settings.ArtifactFolder, 0o750)).To(Succeed(), "Invalid test suite argument. Can't create artifacts-folder %q", e2eCtx.Settings.ArtifactFolder)
-	Byf("Loading the e2e test configuration from %q", e2eCtx.Settings.ConfigPath)
+	Byf("[Rover] Loading the e2e test configuration from %q", e2eCtx.Settings.ConfigPath)
 	e2eCtx.E2EConfig = LoadE2EConfig(e2eCtx.Settings.ConfigPath)
 	sourceTemplate, err := ioutil.ReadFile(filepath.Join(e2eCtx.Settings.DataFolder, e2eCtx.Settings.SourceTemplate))
 	Expect(err).NotTo(HaveOccurred())
@@ -151,10 +152,10 @@ func Node1BeforeSuite(e2eCtx *E2EContext) []byte {
 
 	SetEnvVar("AWS_B64ENCODED_CREDENTIALS", encodeCredentials(e2eCtx.Environment.BootstrapAccessKey, boostrapTemplate.Spec.Region), true)
 
-	By("Writing AWS service quotas to a file for parallel tests")
-	quotas := EnsureServiceQuotas(e2eCtx.BootstrapUserAWSSession)
-	WriteResourceQuotesToFile(ResourceQuotaFilePath, quotas)
-	WriteResourceQuotesToFile(path.Join(e2eCtx.Settings.ArtifactFolder, "initial-resource-quotas.yaml"), quotas)
+	// By("Writing AWS service quotas to a file for parallel tests")
+	// quotas := EnsureServiceQuotas(e2eCtx.BootstrapUserAWSSession)
+	// WriteResourceQuotesToFile(ResourceQuotaFilePath, quotas)
+	// WriteResourceQuotesToFile(path.Join(e2eCtx.Settings.ArtifactFolder, "initial-resource-quotas.yaml"), quotas)
 
 	By("Initializing the bootstrap cluster")
 	initBootstrapCluster(e2eCtx)

@@ -1,3 +1,4 @@
+//go:build e2e
 // +build e2e
 
 /*
@@ -46,7 +47,6 @@ import (
 	apimachinerytypes "k8s.io/apimachinery/pkg/types"
 	"k8s.io/utils/pointer"
 	infrav1 "sigs.k8s.io/cluster-api-provider-aws/api/v1alpha4"
-	"sigs.k8s.io/cluster-api-provider-aws/test/e2e/shared"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1alpha4"
 	bootstrapv1 "sigs.k8s.io/cluster-api/bootstrap/kubeadm/api/v1alpha4"
 	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha4"
@@ -54,6 +54,7 @@ import (
 	"sigs.k8s.io/cluster-api/test/framework/clusterctl"
 	client_runtime "sigs.k8s.io/controller-runtime/pkg/client"
 	crclient "sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/rover-test/test/e2e/shared"
 )
 
 type statefulSetInfo struct {

@@ -28,7 +28,7 @@ import (
 
 	"sigs.k8s.io/cluster-api/test/framework"
 
-	"sigs.k8s.io/cluster-api-provider-aws/test/e2e/shared"
+	"sigs.k8s.io/rover-test/test/e2e/shared"
 )
 
 var (

@@ -1,0 +1,115 @@
+---
+apiVersion: cluster.x-k8s.io/v1alpha4
+kind: Cluster
+metadata:
+  name: "dev-rover"
+spec:
+  clusterNetwork:
+    apiServerPort: 443
+    pods:
+      cidrBlocks: ["192.168.0.0/16"]
+  infrastructureRef:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
+    kind: AWSCluster
+    name: "dev-rover"
+  controlPlaneRef:
+    kind: KubeadmControlPlane
+    apiVersion: controlplane.cluster.x-k8s.io/v1alpha4
+    name: "dev-rover-control-plane"
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
+kind: AWSCluster
+metadata:
+  name: "dev-rover"
+spec:
+  region: "us-west-2"
+  sshKeyName: ""
+---
+kind: KubeadmControlPlane
+apiVersion: controlplane.cluster.x-k8s.io/v1alpha4
+metadata:
+  name: "dev-rover-control-plane"
+spec:
+  replicas: 3
+  machineTemplate:
+    infrastructureRef:
+      kind: AWSMachineTemplate
+      apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
+      name: "dev-rover-control-plane"
+  kubeadmConfigSpec:
+    initConfiguration:
+      nodeRegistration:
+        name: '{{ ds.meta_data.local_hostname }}'
+        kubeletExtraArgs:
+          cloud-provider: aws
+    clusterConfiguration:
+      apiServer:
+        extraArgs:
+          cloud-provider: aws
+      controllerManager:
+        extraArgs:
+          cloud-provider: aws
+    joinConfiguration:
+      nodeRegistration:
+        name: '{{ ds.meta_data.local_hostname }}'
+        kubeletExtraArgs:
+          cloud-provider: aws
+  version: "1.21.5"
+---
+kind: AWSMachineTemplate
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
+metadata:
+  name: "dev-rover-control-plane"
+spec:
+  template:
+    spec:
+      instanceType: "t3.large"
+      iamInstanceProfile: "control-plane.cluster-api-provider-aws.sigs.k8s.io"
+      sshKeyName: ""
+---
+apiVersion: cluster.x-k8s.io/v1alpha4
+kind: MachineDeployment
+metadata:
+  name: "dev-rover-md-0"
+spec:
+  clusterName: "dev-rover"
+  replicas: 0
+  selector:
+    matchLabels:
+  template:
+    spec:
+      clusterName: "dev-rover"
+      version: "1.21.5"
+      bootstrap:
+        configRef:
+          name: "dev-rover-md-0"
+          apiVersion: bootstrap.cluster.x-k8s.io/v1alpha4
+          kind: KubeadmConfigTemplate
+      infrastructureRef:
+        name: "dev-rover-md-0"
+        apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
+        kind: AWSMachineTemplate
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha4
+kind: AWSMachineTemplate
+metadata:
+  name: "dev-rover-md-0"
+spec:
+  template:
+    spec:
+      instanceType: "t3.medium"
+      iamInstanceProfile: "nodes.cluster-api-provider-aws.sigs.k8s.io"
+      sshKeyName: ""
+---
+apiVersion: bootstrap.cluster.x-k8s.io/v1alpha4
+kind: KubeadmConfigTemplate
+metadata:
+  name: "dev-rover-md-0"
+spec:
+  template:
+    spec:
+      joinConfiguration:
+        nodeRegistration:
+          name: '{{ ds.meta_data.local_hostname }}'
+          kubeletExtraArgs:
+            cloud-provider: aws

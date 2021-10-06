@@ -13,12 +13,9 @@
 # AWS credentials must be present for running tests
 # For more details, run `go run ./cmd/clusterawsadm bootstrap credentials`
 
+# will need to figure out passing these image repo:tag at test run time
+# or even better - the whole test configuration should be code-generated and passed?
 images:
-  # - name: 785380725963.dkr.ecr.us-west-2.amazonaws.com/gcr.io_k8s-staging-cluster-api-aws_cluster-api-aws-controller:tilt-cd524b38eaae4242
-  - name: k8s.gcr.io/cluster-api-aws/cluster-api-aws-controller:v0.7.0
-    loadBehavior: tryLoad
-
-## PLEASE KEEP THESE UP TO DATE WITH THE COMPONENTS
   - name: quay.io/jetstack/cert-manager-cainjector:v1.5.3
     loadBehavior: tryLoad
   - name: quay.io/jetstack/cert-manager-webhook:v1.5.3
@@ -31,6 +28,8 @@ images:
     loadBehavior: tryLoad
   - name: k8s.gcr.io/cluster-api/cluster-api-controller:v0.4.3
     loadBehavior: tryLoad
+  - name: k8s.gcr.io/cluster-api-aws/cluster-api-aws-controller:v0.7.0
+    loadBehavior: tryLoad
 
 providers:
 
@@ -38,7 +37,6 @@ providers:
     type: CoreProvider
     versions:
       - name: v0.4.3
-        # Use manifest from source files
         value: "https://github.com/kubernetes-sigs/cluster-api/releases/download/v0.4.3/core-components.yaml"
         type: "url"
         files:
@@ -57,7 +55,6 @@ providers:
       - sourcePath: "./shared/v1alpha4/metadata.yaml"
     versions:
       - name: v0.4.3
-        # Use manifest from source files
         value: "https://github.com/kubernetes-sigs/cluster-api/releases/download/v0.4.3/bootstrap-components.yaml"
         type: "url"
         replacements:
@@ -74,7 +71,6 @@ providers:
       - sourcePath: "./shared/v1alpha4/metadata.yaml"
     versions:
       - name: v0.4.3
-        # Use manifest from source files
         value: "https://github.com/kubernetes-sigs/cluster-api/releases/download/v0.4.3/control-plane-components.yaml"
         type: "url"
         replacements:
@@ -87,12 +83,12 @@ providers:
 
   - name: aws
     type: InfrastructureProvider
-    files:
-      - sourcePath: "./shared/v1alpha4_provider/metadata.yaml"
     versions:
       - name: v0.7.0
         # Use manifest from source files
         value: "https://github.com/kubernetes-sigs/cluster-api-provider-aws/releases/download/v0.7.0/infrastructure-components.yaml"
+        files:
+          - sourcePath: "./shared/v1alpha4_provider/metadata.yaml"
         type: "url"
         replacements:
           - old: "imagePullPolicy: Always"
@@ -101,34 +97,10 @@ providers:
             new: "--leader-elect=false"
           - old: --metrics-bind-addr=127.0.0.1:8080
             new: --metrics-bind-addr=:8080
-
     files:
-    #   # Add a cluster template
-    #   - sourcePath: "./shared/v1alpha4/metadata.yaml"
-    #     targetName: "metadata.yaml"
+      - sourcePath: "./dev-rover.yaml"
+        targetName: "cluster-template-dev-rover.yaml"
       - sourcePath: "./infrastructure-aws/cluster-template.yaml"
-    #   - sourcePath: "./infrastructure-aws/cluster-template-ssm.yaml"
-    #     targetName: "cluster-template-ssm.yaml"
-    #   - sourcePath: "./infrastructure-aws/cluster-template-multi-az.yaml"
-    #     targetName: "cluster-template-multi-az.yaml"
-    #   - sourcePath: "./infrastructure-aws/cluster-template-limit-az.yaml"
-    #     targetName: "cluster-template-limit-az.yaml"
-    #   - sourcePath: "./infrastructure-aws/cluster-template-spot-instances.yaml"
-    #     targetName: "cluster-template-spot-instances.yaml"
-    #   - sourcePath: "./infrastructure-aws/cluster-template-md-remediation.yaml"
-    #     targetName: "cluster-template-md-remediation.yaml"
-    #   - sourcePath: "./infrastructure-aws/cluster-template-kcp-remediation.yaml"
-    #     targetName: "cluster-template-kcp-remediation.yaml"
-    #   - sourcePath: "./infrastructure-aws/cluster-template-kcp-scale-in.yaml"
-    #     targetName: "cluster-template-kcp-scale-in.yaml"
-    #   - sourcePath: "./infrastructure-aws/cluster-template-machine-pool.yaml"
-    #     targetName: "cluster-template-machine-pool.yaml"
-    #   - sourcePath: "./infrastructure-aws/cluster-template-upgrade-to-main.yaml"
-    #     targetName: "cluster-template-upgrade-to-main.yaml"
-    #   - sourcePath: "./infrastructure-aws/cluster-template-simple-multitenancy.yaml"
-    #     targetName: "cluster-template-simple-multitenancy.yaml"
-    #   - sourcePath: "./infrastructure-aws/cluster-template-nested-multitenancy.yaml"
-    #     targetName: "cluster-template-nested-multitenancy.yaml"
 
 variables:
   CNI: "../../data/cni/calico.yaml"
