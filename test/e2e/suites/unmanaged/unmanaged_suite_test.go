@@ -1,3 +1,4 @@
+//go:build e2e
 // +build e2e
 
 /*
@@ -43,9 +44,11 @@ func init() {
 
 func TestE2E(t *testing.T) {
 	RegisterFailHandler(ginkgo.Fail)
-	ginkgo.RunSpecsWithDefaultAndCustomReporters(t, "capa-e2e", []ginkgo.Reporter{framework.CreateJUnitReporterForProw(e2eCtx.Settings.ArtifactFolder)})
+	ginkgo.RunSpecsWithDefaultAndCustomReporters(t, "rover-e2e", []ginkgo.Reporter{framework.CreateJUnitReporterForProw(e2eCtx.Settings.ArtifactFolder)})
 }
 
+// nodes here are referring to the Ginkgo test nodes
+// AllNodesBeforeSuite and Node1BeforeSuite are in test/e2e/shared/suite.go
 var _ = ginkgo.SynchronizedBeforeSuite(func() []byte {
 	return shared.Node1BeforeSuite(e2eCtx)
 }, func(data []byte) {
